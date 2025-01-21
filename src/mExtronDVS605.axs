@@ -4,6 +4,7 @@ MODULE_NAME='mExtronDVS605'	(
                             )
 
 (***********************************************************)
+#DEFINE USING_NAV_MODULE_BASE_CALLBACKS
 #DEFINE USING_NAV_MODULE_BASE_PROPERTY_EVENT_CALLBACK
 #DEFINE USING_NAV_MODULE_BASE_PASSTHRU_EVENT_CALLBACK
 #DEFINE USING_NAV_STRING_GATHER_CALLBACK
@@ -290,7 +291,7 @@ DEFINE_MUTUALLY_EXCLUSIVE
 define_function SendString(char payload[]) {
     lastCommand = payload
 
-    NAVLog(NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_STRING_TO, dvPort, payload))
+    NAVErrorLog(NAV_LOG_LEVEL_DEBUG, NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_STRING_TO, dvPort, payload))
 
     send_string dvPort, "payload"
     wait 1 module.CommandBusy = false
@@ -359,6 +360,7 @@ define_function MaintainIpConnection() {
         return
     }
 
+    NAVErrorLog(NAV_LOG_LEVEL_DEBUG, "'mExtronDVS605 => Attempting to open socket'")
     NAVClientSocketOpen(dvPort.PORT,
                         module.Device.SocketConnection.Address,
                         module.Device.SocketConnection.Port,
@@ -374,7 +376,7 @@ define_function NAVStringGatherCallback(_NAVStringGatherResult args) {
     data = args.Data
     delimiter = args.Delimiter
 
-    NAVLog(NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_PARSING_STRING_FROM, dvPort, data))
+    NAVErrorLog(NAV_LOG_LEVEL_DEBUG, NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_PARSING_STRING_FROM, dvPort, data))
 
     data = NAVStripRight(data, length_array(delimiter))
 
@@ -489,11 +491,13 @@ define_function Init() {
 define_function NAVModulePropertyEventCallback(_NAVModulePropertyEvent event) {
     switch (event.Name) {
         case NAV_MODULE_PROPERTY_EVENT_IP_ADDRESS: {
+            NAVErrorLog(NAV_LOG_LEVEL_INFO, "'mExtronDVS605 => IP Address: ', event.Args[1]")
             module.Device.SocketConnection.Address = event.Args[1]
             module.Device.SocketConnection.Port = IP_PORT
             NAVTimelineStart(TL_IP_CHECK, ipCheck, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
         }
         case NAV_MODULE_PROPERTY_EVENT_PASSWORD: {
+            NAVErrorLog(NAV_LOG_LEVEL_DEBUG, "'mExtronDVS605 => Password: ', event.Args[1]")
             password = event.Args[1]
         }
     }
@@ -502,8 +506,12 @@ define_function NAVModulePropertyEventCallback(_NAVModulePropertyEvent event) {
 
 
 #IF_DEFINED USING_NAV_MODULE_BASE_PASSTHRU_EVENT_CALLBACK
-define_function NAVModulePassthruEventCallback(char data[]) {
-    SendString(data)
+define_function NAVModulePassthruEventCallback(_NAVModulePassthruEvent event) {
+    if (event.Device != vdvObject) {
+        return
+    }
+
+    SendString(event.Payload)
 }
 #END_IF
 
@@ -553,7 +561,7 @@ data_event[dvPort] {
     string: {
         CommunicationTimeOut(30)
 
-        NAVLog(NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_STRING_FROM, data.device, data.text))
+        NAVErrorLog(NAV_LOG_LEVEL_DEBUG, NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_STRING_FROM, data.device, data.text))
 
         select {
             active (NAVContains(module.RxBuffer.Data, "'Password:'")): {
@@ -572,7 +580,7 @@ data_event[vdvObject] {
     command: {
         stack_var _NAVSnapiMessage message
 
-        NAVLog(NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_COMMAND_FROM, data.device, data.text))
+        NAVErrorLog(NAV_LOG_LEVEL_DEBUG, NAVFormatStandardLogMessage(NAV_STANDARD_LOG_MESSAGE_TYPE_COMMAND_FROM, data.device, data.text))
 
         NAVParseSnapiMessage(data.text, message)
 
