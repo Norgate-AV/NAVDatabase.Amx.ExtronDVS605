@@ -62,6 +62,10 @@ constant long TL_DRIVE	= 1
 constant long TL_IP_CHECK = 2
 constant long TL_HEARTBEAT = 3
 
+constant long TL_DRIVE_INTERVAL[] = { 200 }
+constant long TL_IP_CHECK_INTERVAL[] = { 3000 }
+constant long TL_HEARTBEAT_INTERVAL[] = { 20000 }
+
 constant integer MAX_LEVELS = 3
 
 constant char LEVEL_COMMANDS[][NAV_MAX_CHARS]   =   {
@@ -255,10 +259,6 @@ DEFINE_TYPE
 (*               VARIABLE DEFINITIONS GO BELOW             *)
 (***********************************************************)
 DEFINE_VARIABLE
-
-volatile long driveTick[] = { 200 }
-volatile long ipCheck[] = { 3000 }
-volatile long heartbeat[] = { 20000 }
 
 volatile integer output[MAX_LEVELS][MAX_OUTPUTS]
 volatile integer outputPending[MAX_LEVELS][MAX_OUTPUTS]
@@ -502,7 +502,7 @@ define_function NAVModulePropertyEventCallback(_NAVModulePropertyEvent event) {
         case NAV_MODULE_PROPERTY_EVENT_IP_ADDRESS: {
             module.Device.SocketConnection.Address = NAVTrimString(event.Args[1])
             module.Device.SocketConnection.Port = IP_PORT
-            NAVTimelineStart(TL_IP_CHECK, ipCheck, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
+            NAVTimelineStart(TL_IP_CHECK, TL_IP_CHECK_INTERVAL, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
         }
         case NAV_MODULE_PROPERTY_EVENT_PASSWORD: {
             password = NAVTrimString(event.Args[1])
@@ -551,8 +551,8 @@ data_event[dvPort] {
 
         SendString("NAV_ESC, '3CV', NAV_CR")
 
-        NAVTimelineStart(TL_DRIVE, driveTick, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
-        NAVTimelineStart(TL_HEARTBEAT, heartbeat, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
+        NAVTimelineStart(TL_DRIVE, TL_DRIVE_INTERVAL, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
+        NAVTimelineStart(TL_HEARTBEAT, TL_HEARTBEAT_INTERVAL, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
     }
     offline: {
         if (data.device.number == 0) {
