@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.1](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/compare/v1.0.0...v1.0.1) (2025-02-16)
+
+### 🐛 Bug Fixes
+
+- ensure properties are trimmed ([c1ec1c0](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/commit/c1ec1c087d942d930388bde7e71dc01bd20d7181))
+
+### 🚀 Performance
+
+- move timeline arrays to constant ([5d8c189](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/commit/5d8c1890a6e85f0cf4caaa33d2c3aff023b1326d))
+- remove unnecessary logging ([980ce24](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/commit/980ce24f8a4804839bfe64dcc32ede32da6298b0))
+
 ## 1.0.0 (2025-01-21)
 
 ### 🌟 Features
