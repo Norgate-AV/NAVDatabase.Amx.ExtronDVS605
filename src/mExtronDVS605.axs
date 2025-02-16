@@ -500,12 +500,12 @@ define_function Init() {
 define_function NAVModulePropertyEventCallback(_NAVModulePropertyEvent event) {
     switch (event.Name) {
         case NAV_MODULE_PROPERTY_EVENT_IP_ADDRESS: {
-            module.Device.SocketConnection.Address = event.Args[1]
+            module.Device.SocketConnection.Address = NAVTrimString(event.Args[1])
             module.Device.SocketConnection.Port = IP_PORT
             NAVTimelineStart(TL_IP_CHECK, ipCheck, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
         }
         case NAV_MODULE_PROPERTY_EVENT_PASSWORD: {
-            password = event.Args[1]
+            password = NAVTrimString(event.Args[1])
         }
     }
 }
