@@ -12,6 +12,9 @@ MODULE_NAME='mExtronDVS605'	(
 #include 'NAVFoundation.SocketUtils.axi'
 #include 'NAVFoundation.ArrayUtils.axi'
 #include 'NAVFoundation.StringUtils.axi'
+#include 'NAVFoundation.ErrorLogUtils.axi'
+#include 'NAVFoundation.TimelineUtils.axi'
+#include 'LibExtronDVS605.axi'
 
 /*
  _   _                       _          ___     __
@@ -54,9 +57,7 @@ DEFINE_DEVICE
 (***********************************************************)
 DEFINE_CONSTANT
 
-constant char DELIMITER[] = "{ {NAV_CR}, {NAV_LF} }"
-
-constant integer IP_PORT = NAV_TELNET_PORT
+constant char DELIMITER[] = { $0D, $0A }
 
 constant long TL_DRIVE	= 1
 constant long TL_IP_CHECK = 2
@@ -66,189 +67,6 @@ constant long TL_DRIVE_INTERVAL[] = { 200 }
 constant long TL_IP_CHECK_INTERVAL[] = { 3000 }
 constant long TL_HEARTBEAT_INTERVAL[] = { 20000 }
 
-constant integer MAX_LEVELS = 3
-
-constant char LEVEL_COMMANDS[][NAV_MAX_CHARS]   =   {
-                                                        '!',
-                                                        '&',
-                                                        '$'
-                                                    }
-
-constant integer MAX_VOLUME = 100
-constant integer MIN_VOLUME = 0
-
-constant integer MAX_OUTPUTS = 1
-constant char OUTPUT_RATES[][NAV_MAX_CHARS]	=   {
-                                                    '640x480/50',
-                                                    '640x480/60',
-                                                    '640x480/75',
-                                                    '800x600/50',
-                                                    '800x600/60',
-                                                    '800x600/75',
-                                                    '852x480/50',
-                                                    '852x480/60',
-                                                    '852x480/75',
-                                                    '1024x768/50',
-                                                    '1024x768/60',
-                                                    '1024x768/75',
-                                                    '1024x852/50',
-                                                    '1024x852/60',
-                                                    '1024x852/75',
-                                                    '1024x1024/50',
-                                                    '1024x1024/60',
-                                                    '1024x1024/75',
-                                                    '1280x768/50',
-                                                    '1280x768/60',
-                                                    '1280x768/75',
-                                                    '1280x800/50',
-                                                    '1280x800/60',
-                                                    '1280x800/75',
-                                                    '1280x1024/50',
-                                                    '1280x1024/60',
-                                                    '1280x1024/75',
-                                                    '1360x765/50',
-                                                    '1360x765/60',
-                                                    '1360x765/75',
-                                                    '1360x768/50',
-                                                    '1360x768/60',
-                                                    '1360x768/75',
-                                                    '1365x768/50',
-                                                    '1365x768/60',
-                                                    '1365x768/75',
-                                                    '1366x768/50',
-                                                    '1366x768/60',
-                                                    '1366x768/75',
-                                                    '1365x1024/50',
-                                                    '1365x1024/60',
-                                                    '1365x1024/75',
-                                                    '1440x900/50',
-                                                    '1440x900/60',
-                                                    '1440x900/75',
-                                                    '1400x1050/50',
-                                                    '1400x1050/60',
-                                                    '1600x900/50',
-                                                    '1600x900/60',
-                                                    '1680x1050/50',
-                                                    '1680x1050/60',
-                                                    '1600x1200/50',
-                                                    '1600x1200/60',
-                                                    '1920x1200/50',
-                                                    '1920x1200/60',
-                                                    '480p/59.94',
-                                                    '480p/60',
-                                                    '576p/50',
-                                                    '720p/25',
-                                                    '720p/29.97',
-                                                    '720p/30',
-                                                    '720p/50',
-                                                    '720p/59.94',
-                                                    '720p/60',
-                                                    '1080i/50',
-                                                    '1080i/59.94',
-                                                    '1080i/60',
-                                                    '1080p/23.98',
-                                                    '1080p/24',
-                                                    '1080p/25',
-                                                    '1080p/29.97',
-                                                    '1080p/30',
-                                                    '1080p/50',
-                                                    '1080p/59.94',
-                                                    '1080p/60',
-                                                    '2048x1080/23.98',
-                                                    '2048x1080/24',
-                                                    '2048x1080/25',
-                                                    '2048x1080/29.97',
-                                                    '2048x1080/30',
-                                                    '2048x1080/50',
-                                                    '2048x1080/59.94',
-                                                    '2048x1080/60'
-                                                }
-
-constant integer OUTPUT_RATE_MAP[]  =   {
-                                            10,
-                                            11,
-                                            12,
-                                            13,
-                                            14,
-                                            15,
-                                            16,
-                                            17,
-                                            18,
-                                            19,
-                                            20,
-                                            21,
-                                            22,
-                                            23,
-                                            24,
-                                            25,
-                                            26,
-                                            27,
-                                            28,
-                                            29,
-                                            30,
-                                            31,
-                                            32,
-                                            33,
-                                            34,
-                                            35,
-                                            36,
-                                            37,
-                                            38,
-                                            39,
-                                            40,
-                                            41,
-                                            42,
-                                            43,
-                                            44,
-                                            45,
-                                            46,
-                                            47,
-                                            48,
-                                            49,
-                                            50,
-                                            51,
-                                            52,
-                                            53,
-                                            54,
-                                            55,
-                                            56,
-                                            57,
-                                            58,
-                                            59,
-                                            60,
-                                            61,
-                                            62,
-                                            63,
-                                            64,
-                                            65,
-                                            66,
-                                            67,
-                                            68,
-                                            69,
-                                            70,
-                                            71,
-                                            72,
-                                            73,
-                                            74,
-                                            75,
-                                            76,
-                                            77,
-                                            78,
-                                            79,
-                                            80,
-                                            81,
-                                            82,
-                                            83,
-                                            84,
-                                            85,
-                                            86,
-                                            87,
-                                            88,
-                                            89,
-                                            90,
-                                            91,
-                                            92
-                                        }
 
 (***********************************************************)
 (*              DATA TYPE DEFINITIONS GO BELOW             *)
@@ -260,10 +78,10 @@ DEFINE_TYPE
 (***********************************************************)
 DEFINE_VARIABLE
 
-volatile integer output[MAX_LEVELS][MAX_OUTPUTS]
-volatile integer outputPending[MAX_LEVELS][MAX_OUTPUTS]
+volatile integer output[MAX_LEVELS]
+volatile char outputPending[MAX_LEVELS]
 
-volatile integer outputActual[MAX_LEVELS][MAX_OUTPUTS]
+volatile integer outputActual[MAX_LEVELS]
 
 volatile char lastCommand[NAV_MAX_BUFFER]
 
@@ -303,60 +121,42 @@ define_function SendString(char payload[]) {
 }
 
 
-define_function char[NAV_MAX_BUFFER] BuildSwitch(integer input, integer level) {
-    return "itoa(input), LEVEL_COMMANDS[level]"
-}
-
-
-define_function char[NAV_MAX_BUFFER] BuildVolume(integer volume) {
-    return "itoa(volume), 'V'"
-}
-
-
-define_function char[NAV_MAX_BUFFER] BuildMute(integer state) {
-    return "itoa(state), 'Z'"
-}
-
-
-define_function char[NAV_MAX_BUFFER] BuildPreset(integer preset) {
-    return "'3*', itoa(preset), '.'"
-}
-
-
-define_function char[NAV_MAX_BUFFER] BuildPipSwitch(integer input) {
-    return "NAV_ESC, itoa(input), 'PIP', NAV_CR"
-}
-
-
-define_function char[NAV_MAX_BUFFER] BuildOutputRate(char rate[]) {
-    stack_var integer rateIndex
-
-    rateIndex = NAVFindInArraySTRING(OUTPUT_RATES, rate)
-
-    return "NAV_ESC, itoa(OUTPUT_RATE_MAP[rateIndex]), 'RATE', NAV_CR"
-}
-
-
 define_function Drive() {
-    stack_var integer x
-    stack_var integer z
+    stack_var integer pending
 
     if (module.CommandBusy) {
         return
     }
 
-    for (x = 1; x <= MAX_OUTPUTS; x++) {
-        for(z = 1; z <= MAX_LEVELS; z++) {
-            if (!outputPending[z][x] || module.CommandBusy) {
-                continue
-            }
+    pending = SwitchPending()
 
-            outputPending[z][x] = false
-            module.CommandBusy = true
+    if (!pending) {
+        NAVTimelineStop(TL_DRIVE)
+        return
+    }
 
-            SendString(BuildSwitch(output[z][x], z))
+    outputPending[pending] = false
+    module.CommandBusy = true
+    SendString(BuildSwitch(output[pending], pending))
+
+    if (SwitchPending() > 0) {
+        return
+    }
+
+    NAVTimelineStop(TL_DRIVE)
+}
+
+
+define_function integer SwitchPending() {
+    stack_var integer x
+
+    for (x = 1; x <= MAX_LEVELS; x++) {
+        if (outputPending[x]) {
+            return x
         }
     }
+
+    return 0
 }
 
 
@@ -411,11 +211,11 @@ define_function NAVStringGatherCallback(_NAVStringGatherResult args) {
                 }
             }
 
-            if (input == outputActual[level][1]) {
+            if (input == outputActual[level]) {
                 return
             }
 
-            outputActual[level][1] = input
+            outputActual[level] = input
             NAVCommand(vdvObject, "'SWITCH-', itoa(input), ',', NAV_SWITCH_LEVELS[level]")
         }
         active (NAVStartsWith(data, 'Vol')): {
@@ -468,9 +268,11 @@ define_function CommunicationTimeOut(integer timeout) {
     cancel_wait 'TimeOut'
 
     module.Device.IsCommunicating = true
+    UpdateFeedback()
 
     wait (timeout * 10) 'TimeOut' {
         module.Device.IsCommunicating = false
+        UpdateFeedback()
     }
 }
 
@@ -479,6 +281,7 @@ define_function Reset() {
     module.Device.SocketConnection.IsConnected = false
     module.Device.IsCommunicating = false
     module.Device.IsInitialized = false
+    UpdateFeedback()
 
     NAVTimelineStop(TL_HEARTBEAT)
     NAVTimelineStop(TL_DRIVE)
@@ -493,6 +296,7 @@ define_function Init() {
     SendString('$')
 
     module.Device.IsInitialized = true
+    UpdateFeedback()
 }
 
 
@@ -523,6 +327,13 @@ define_function NAVModulePassthruEventCallback(_NAVModulePassthruEvent event) {
 #END_IF
 
 
+define_function UpdateFeedback() {
+    [vdvObject, NAV_IP_CONNECTED]	= (module.Device.SocketConnection.IsConnected)
+    [vdvObject, DEVICE_COMMUNICATING] = (module.Device.IsCommunicating)
+    [vdvObject, DATA_INITIALIZED] = (module.Device.IsInitialized)
+}
+
+
 (***********************************************************)
 (*                STARTUP CODE GOES BELOW                  *)
 (***********************************************************)
@@ -547,12 +358,14 @@ data_event[dvPort] {
 
         if (data.device.number == 0) {
             module.Device.SocketConnection.IsConnected = true
+            UpdateFeedback()
         }
 
         SendString("NAV_ESC, '3CV', NAV_CR")
-
-        NAVTimelineStart(TL_DRIVE, TL_DRIVE_INTERVAL, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
-        NAVTimelineStart(TL_HEARTBEAT, TL_HEARTBEAT_INTERVAL, TIMELINE_ABSOLUTE, TIMELINE_REPEAT)
+        NAVTimelineStart(TL_HEARTBEAT,
+                        TL_HEARTBEAT_INTERVAL,
+                        TIMELINE_ABSOLUTE,
+                        TIMELINE_REPEAT)
     }
     offline: {
         if (data.device.number == 0) {
@@ -601,8 +414,13 @@ data_event[vdvObject] {
                 level = NAVFindInArrayString(NAV_SWITCH_LEVELS, message.Parameter[3])
                 if (!level) { level = NAV_SWITCH_LEVEL_ALL }
 
-                output[level][1] = atoi(message.Parameter[1])
-                outputPending[level][1] = true
+                output[level] = atoi(message.Parameter[1])
+                outputPending[level] = true
+
+                NAVTimelineStart(TL_DRIVE,
+                                TL_DRIVE_INTERVAL,
+                                TIMELINE_ABSOLUTE,
+                                TIMELINE_REPEAT)
             }
             case NAV_MODULE_EVENT_VOLUME: {
                 switch (message.Parameter[1]) {
@@ -662,13 +480,6 @@ timeline_event[TL_IP_CHECK] { MaintainIPConnection() }
 
 timeline_event[TL_HEARTBEAT] {
     SendString("NAV_ESC, '3CV', NAV_CR")
-}
-
-
-timeline_event[TL_NAV_FEEDBACK] {
-    [vdvObject, NAV_IP_CONNECTED]	= (module.Device.SocketConnection.IsConnected)
-    [vdvObject, DEVICE_COMMUNICATING] = (module.Device.IsCommunicating)
-    [vdvObject, DATA_INITIALIZED] = (module.Device.IsInitialized)
 }
 
 
