@@ -4,8 +4,6 @@ MODULE_NAME='mExtronDVS605UIArray'	(
                                     )
 
 (***********************************************************)
-#include 'NAVFoundation.ModuleBase.axi'
-#include 'NAVFoundation.UIUtils.axi'
 
 /*
  _   _                       _          ___     __

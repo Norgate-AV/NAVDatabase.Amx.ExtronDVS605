@@ -78,6 +78,8 @@ DEFINE_TYPE
 (***********************************************************)
 DEFINE_VARIABLE
 
+volatile _NAVModule module
+
 volatile integer output[MAX_LEVELS]
 volatile char outputPending[MAX_LEVELS]
 
@@ -338,6 +340,7 @@ define_function UpdateFeedback() {
 (*                STARTUP CODE GOES BELOW                  *)
 (***********************************************************)
 DEFINE_START {
+    NAVModuleInit(module)
     create_buffer dvPort, module.RxBuffer.Data
 }
 

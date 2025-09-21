@@ -1,7 +1,7 @@
 PROGRAM_NAME='LibExtronDVS605'
 
 (***********************************************************)
-#include 'NAVFoundation.Core.axi'
+#include 'NAVFoundation.Core.h.axi'
 #include 'NAVFoundation.ArrayUtils.axi'
 
 /*
@@ -256,7 +256,7 @@ define_function char[NAV_MAX_BUFFER] BuildPipSwitch(integer input) {
 define_function char[NAV_MAX_BUFFER] BuildOutputRate(char rate[]) {
     stack_var integer rateIndex
 
-    rateIndex = NAVFindInArraySTRING(OUTPUT_RATES, rate)
+    rateIndex = NAVFindInArrayString(OUTPUT_RATES, rate)
 
     return "NAV_ESC, itoa(OUTPUT_RATE_MAP[rateIndex]), 'RATE', NAV_CR"
 }
