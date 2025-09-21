@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/compare/v1.2.0...v1.3.0) (2025-09-21)
+
+### 🌟 Features
+
+- update for NAVFoundation v3+ ([fd81f24](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/commit/fd81f24c2852551593f9e1cc971b3d015bb92329))
+
 ## [1.2.0](https://github.com/Norgate-AV/NAVDatabase.Amx.ExtronDVS605/compare/v1.1.0...v1.2.0) (2025-03-12)
 
 ### 🌟 Features
